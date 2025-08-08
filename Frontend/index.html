@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ConversAI</title>
+  <script defer>
+    async function sendPrompt() {
+      const input = document.getElementById('userInput');
+      const output = document.getElementById('responseBox');
+      const prompt = input.value;
+      if (!prompt.trim()) return;
+
+      output.innerHTML += `<div class='text-right mb-2'><span class='inline-block bg-blue-700 text-white px-4 py-2 rounded-lg max-w-[80%]'>${prompt}</span></div>`;
+      input.value = '';
+
+      const res = await fetch('http://localhost:3000/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await res.json();
+      output.innerHTML += `<div class='text-left mb-2'><span class='inline-block bg-gray-800 text-white px-4 py-2 rounded-lg max-w-[80%]'>${data.reply}</span></div>`;
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white font-sans">
+  <header class="p-6 flex justify-between items-center">
+    <h1 class="text-xl font-bold flex items-center gap-2">
+      <span><img src="https://img.icons8.com/?size=100&id=XDoDBLNz5eBF&format=png&color=000000" alt="Ai" style="height: 50px;"></span> ConversAI
+    </h1>
+    <nav class="space-x-6">
+      <a href="#" class="hover:underline">Features</a>
+      <a href="#" class="hover:underline">About</a>
+      <a href="#" class="hover:underline">Help</a>
+      <button class="bg-white text-black px-4 py-2 rounded-full font-semibold">Sign In</button>
+    </nav>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 text-center mt-10">
+    <h2 class="text-4xl font-bold mb-4">Your Intelligent AI Assistant</h2>
+    <p class="text-gray-300 mb-10">Experience the future of productivity with our advanced AI assistant. Get instant answers, generate content, and streamline your workflow with intelligent conversations.</p>
+
+    <div class="bg-gray-900 p-6 rounded-xl shadow-lg">
+      <div id="responseBox" class="h-64 overflow-y-auto text-left mb-4 p-2 bg-black rounded-lg">
+        <div class='text-left mb-2'><span class='inline-block bg-purple-600 text-white px-4 py-2 rounded-lg max-w-[80%]'>Hello! I'm your AI assistant. How can I help you today?</span></div>
+      </div>
+      <div class="flex gap-2">
+        <input id="userInput" type="text" placeholder="Type your message here..." class="flex-grow px-4 py-2 rounded-lg text-black" />
+        <button onclick="sendPrompt()" class="bg-white text-black px-6 py-2 rounded-lg font-bold">Send</button>
+      </div>
+    </div>
+
+    <section class="mt-16">
+      <h3 class="text-3xl font-semibold mb-6">Powerful AI Features</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gray-900 p-6 rounded-lg">
+          <div class="text-purple-400 text-3xl mb-2">⬤</div>
+          <h4 class="text-xl font-bold mb-1">Instant Responses</h4>
+          <p class="text-gray-400">Get immediate answers to your questions with our advanced natural language processing.</p>
+        </div>
+        <div class="bg-gray-900 p-6 rounded-lg">
+          <div class="text-blue-400 text-3xl mb-2">👥</div>
+          <h4 class="text-xl font-bold mb-1">Smart Context</h4>
+          <p class="text-gray-400">Our AI remembers your conversation context for more meaningful and relevant interactions.</p>
+        </div>
+        <div class="bg-gray-900 p-6 rounded-lg">
+          <div class="text-green-400 text-3xl mb-2">📋</div>
+          <h4 class="text-xl font-bold mb-1">Multi-Purpose</h4>
+          <p class="text-gray-400">From writing assistance to problem-solving, our AI adapts to your diverse needs.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="mt-20 p-6 border-t border-gray-800 text-center text-sm text-gray-500">
+    <div class="flex justify-between items-center max-w-4xl mx-auto">
+      <div>
+        <h1 class="font-bold text-white flex items-center gap-2">🏠 AI-Assistant</h1>
+        <p class="text-sm">Empowering productivity through intelligent AI assistance.<br>Experience the future of digital interaction.</p>
+      </div>
+      <div class="space-x-6">
+        <a href="#" class="hover:underline">Privacy Policy</a>
+        <a href="#" class="hover:underline">Terms of Service</a>
+        <a href="#" class="hover:underline">Support</a>
+      </div>
+    </div>
+    <p class="mt-4">&copy; 2025 AI-Assistant. All rights reserved.</p>
+  </footer>
+</body>
+</html>

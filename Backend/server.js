@@ -1,75 +1,42 @@
-// 
 import express from 'express';
-import fetch from 'node-fetch';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import 'dotenv/config';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = 3000;
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+// Needed to get __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Middleware to parse JSON
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-// POST /test endpoint
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
+// Serve frontend
+app.use(express.static(path.join(__dirname, '../Frontend')));
 
+// Gemini setup
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// POST /test
 app.post('/test', async (req, res) => {
-  const { prompt } = req.body;
-
-  if (!prompt) {
-    return res.status(400).json({ error: 'Prompt is required in the request body.' });
-  }
-
+  const prompt = req.body.prompt;
   try {
-    const response = await fetch(GEMINI_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: prompt }
-            ]
-          }
-        ]
-      })
-    });
-
-    const data = await response.json();
-
-    const generatedText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!generatedText) {
-      return res.status(500).json({ error: 'No response from Gemini API.' });
-    }
-
-    res.json({ reply: generatedText });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    res.json({ reply: text });
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ error: 'Failed to fetch from Gemini API.' });
+    res.status(500).json({ reply: "Something went wrong." });
   }
-  fetch('http://localhost:3000/test', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    prompt: "You are a coding assistant that talks like a pirate. Tell me a joke related to Computer Science."
-  })
-})
-  .then(res => res.json())
-  .then(data => {
-    console.log('Response:', data.reply);
-  })
-  .catch(err => console.error('Error:', err));
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// Start server
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
 });
