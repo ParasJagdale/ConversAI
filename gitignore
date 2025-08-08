@@ -1,8 +1,6 @@
-
-# Node modules
+# Ignore all node_modules folders, including nested ones
 node_modules/
+**/node_modules/
 
-# Environment variables
+# Ignore environment variable files
 .env
-
-Backend/node_modules/
