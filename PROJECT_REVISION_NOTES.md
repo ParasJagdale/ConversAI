@@ -350,5 +350,87 @@ curl -X POST http://localhost:3000/test \
 **Next Review:** After Frontend Phase Completion
 
 ---
+# ✅ Phase 5: Frontend Integration & Local Testing
 
+## What you accomplished (with guidance):
+
+### 1. UI Development Setup
+- Decided to start with a plain HTML-based frontend before setting up React.
+- Used [Shuffle.dev](https://shuffle.dev/) as a design inspiration/reference.
+- Created a `Frontend/index.html` page with TailwindCSS styling to mimic a modern AI chat UI.
+
+### 2. Connected Frontend to Backend API
+- Integrated `fetch()` in the frontend to POST a prompt to the `/test` route.
+- Handled response and displayed AI-generated messages in the UI dynamically.
+- Tested with real prompt: pirate-style computer science joke.
+
+### 3. Thunder Client Testing
+- Used [Thunder Client](https://www.thunderclient.com/) in VS Code to manually test POST `/test` requests with prompts.
+- Verified response formatting and ensured endpoint returned `reply` correctly.
+
+### 4. Backend Configuration Finalization
+- Added `public/` folder inside `Backend/` to serve static frontend files via Express.
+- Updated `server.js`:
+  ```js
+  app.use(express.static('public'));
+  ```
+- Now, opening `http://localhost:3000` serves the `index.html` UI directly.
+
+### 5. Finalized Environment Setup
+- Ensured `.env` contains:
+  ```env
+  GEMINI_API_KEY=your-actual-key
+  PORT=3000
+  ```
+- Included `.env` and `node_modules` in `.gitignore`:
+  ```
+  node_modules/
+  .env
+  ```
+
+---
+
+## 📂 Updated Folder Structure (Post Integration)
+
+```
+Gemini_Clone/
+├── Backend/
+│   ├── server.js
+│   ├── .env
+│   ├── package.json
+│   └── public/
+│       └── index.html   # UI now served directly via Express
+├── Frontend/             # (React setup planned here later)
+│   └── index.js          # Reserved for future React implementation
+```
+
+---
+
+## 🚀 New Quick Start
+
+```bash
+# 1. Start backend server
+cd Backend
+npm install
+npx nodemon server.js
+
+# 2. Open in browser
+http://localhost:3000
+
+# 3. OR test via Thunder Client
+POST http://localhost:3000/test
+Body:
+{
+  "prompt": "Explain recursion like I'm 5."
+}
+```
+
+---
+
+## 💡 Lessons & Best Practices From This Phase
+
+- ✅ **Modular Frontend Development:** Started simple before jumping to React
+- ✅ **API Testing via Thunder Client** improves speed of iteration
+- ✅ **Static File Hosting via Express** removes the need for separate local servers
+- ✅ **Working UI = Faster Iteration and Feedback**
 *This revision file serves as your development journal and reference guide. Update it as you progress through each phase of development.*
