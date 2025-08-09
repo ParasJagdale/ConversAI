@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ConversAI</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Marked.js for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
   <script defer>
     async function sendPrompt() {
       const input = document.getElementById('userInput');
@@ -11,27 +17,44 @@
       const prompt = input.value;
       if (!prompt.trim()) return;
 
-      output.innerHTML += `<div class='text-right mb-2'><span class='inline-block bg-blue-700 text-white px-4 py-2 rounded-lg max-w-[80%]'>${prompt}</span></div>`;
+      // Show user message
+      output.innerHTML += `
+        <div class='text-right mb-2'>
+          <span class='inline-block bg-blue-700 text-white px-4 py-2 rounded-lg max-w-[80%]'>
+            ${prompt}
+          </span>
+        </div>`;
       input.value = '';
+      output.scrollTop = output.scrollHeight;
 
+      // Fetch AI response
       const res = await fetch('http://localhost:3000/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt })
       });
       const data = await res.json();
-      output.innerHTML += `<div class='text-left mb-2'><span class='inline-block bg-gray-800 text-white px-4 py-2 rounded-lg max-w-[80%]'>${data.reply}</span></div>`;
+
+      // Render AI message as Markdown
+      output.innerHTML += `
+        <div class='text-left mb-2'>
+          <div class='inline-block bg-gray-800 text-white px-4 py-2 rounded-lg max-w-[80%] prose prose-invert'>
+            ${marked.parse(data.reply)}
+          </div>
+        </div>`;
+      output.scrollTop = output.scrollHeight;
     }
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-black text-white font-sans">
   <header class="p-6 flex justify-between items-center">
     <h1 class="text-xl font-bold flex items-center gap-2">
-      <span><img src="https://img.icons8.com/?size=100&id=XDoDBLNz5eBF&format=png&color=000000" alt="Ai" style="height: 50px;"></span> ConversAI
+      <span>
+        <img src="https://img.icons8.com/?size=100&id=XDoDBLNz5eBF&format=png&color=000000" alt="Ai" style="height: 50px;">
+      </span> ConversAI
     </h1>
     <nav class="space-x-6">
-      <a href="#" class="hover:underline">Features</a>
+      <a href="features.html" class="hover:underline">Features</a>
       <a href="#" class="hover:underline">About</a>
       <a href="#" class="hover:underline">Help</a>
       <button class="bg-white text-black px-4 py-2 rounded-full font-semibold">Sign In</button>
@@ -44,7 +67,11 @@
 
     <div class="bg-gray-900 p-6 rounded-xl shadow-lg">
       <div id="responseBox" class="h-64 overflow-y-auto text-left mb-4 p-2 bg-black rounded-lg">
-        <div class='text-left mb-2'><span class='inline-block bg-purple-600 text-white px-4 py-2 rounded-lg max-w-[80%]'>Hello! I'm your AI assistant. How can I help you today?</span></div>
+        <div class='text-left mb-2'>
+          <span class='inline-block bg-purple-600 text-white px-4 py-2 rounded-lg max-w-[80%]'>
+            Hello! I'm your AI assistant. How can I help you today?
+          </span>
+        </div>
       </div>
       <div class="flex gap-2">
         <input id="userInput" type="text" placeholder="Type your message here..." class="flex-grow px-4 py-2 rounded-lg text-black" />

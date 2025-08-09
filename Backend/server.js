@@ -27,7 +27,19 @@ app.post('/test', async (req, res) => {
   const prompt = req.body.prompt;
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
+
+    // Instruct AI to return formatted Markdown
+    const result = await model.generateContent(
+      `${prompt}
+
+Please format the response in clean Markdown syntax:
+- Use "##" for headings
+- Use "**" for bold
+- Use bullet points for lists
+- Keep sections clear and readable
+- Use emojis where appropriate`
+    );
+
     const text = result.response.text();
     res.json({ reply: text });
   } catch (error) {
@@ -38,5 +50,5 @@ app.post('/test', async (req, res) => {
 
 // Start server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`✅ Server running at http://localhost:${port}`);
 });
