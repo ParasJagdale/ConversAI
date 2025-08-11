@@ -24,29 +24,26 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // POST /test
 app.post('/test', async (req, res) => {
-  const prompt = req.body.prompt;
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const { prompt } = req.body;
 
-    // Instruct AI to return formatted Markdown
-    const result = await model.generateContent(
-      `${prompt}
+    const systemPrompt = `
+    You are a compassionate and encouraging AI mentor for students. 
+    Your goal is to help them share their worries about studies, exams, placements, or career uncertainty.
+    Always respond with empathy, practical advice, and positivity.
+    Avoid overly technical jargon unless they ask for it.
+    `;
 
-Please format the response in clean Markdown syntax:
-- Use "##" for headings
-- Use "**" for bold
-- Use bullet points for lists
-- Keep sections clear and readable
-- Use emojis where appropriate`
-    );
-
+    const result = await model.generateContent(systemPrompt + "\nStudent: " + prompt);
     const text = result.response.text();
+
     res.json({ reply: text });
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ reply: "Something went wrong." });
+    console.error(error);
+    res.status(500).json({ error: 'Something went wrong' });
   }
 });
+
 
 // Start server
 app.listen(port, () => {

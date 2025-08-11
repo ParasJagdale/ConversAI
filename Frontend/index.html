@@ -3,12 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ConversAI</title>
+  <title>Converse AI</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Marked.js for Markdown parsing -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: #0a0a0a;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .chat-bubble-user {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin-left: auto;
+    }
+    
+    .chat-bubble-ai {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .input-focus:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hover-scale:hover {
+      transform: scale(1.02);
+      transition: transform 0.2s ease;
+    }
+    
+    .scroll-smooth {
+      scroll-behavior: smooth;
+    }
+    
+    .prose-custom {
+      color: inherit;
+    }
+    
+    .prose-custom h1, .prose-custom h2, .prose-custom h3, .prose-custom h4, .prose-custom h5, .prose-custom h6 {
+      color: inherit;
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+    }
+    
+    .prose-custom p {
+      margin-top: 0.25em;
+      margin-bottom: 0.25em;
+    }
+    
+    .prose-custom code {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+    
+    .prose-custom pre {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+    }
+  </style>
   
   <script defer>
     async function sendPrompt() {
@@ -19,101 +102,255 @@
 
       // Show user message
       output.innerHTML += `
-        <div class='text-right mb-2'>
-          <span class='inline-block bg-blue-700 text-white px-4 py-2 rounded-lg max-w-[80%]'>
+        <div class='flex justify-end mb-4'>
+          <div class='chat-bubble-user text-white px-4 py-3 rounded-2xl max-w-[75%] shadow-lg'>
             ${prompt}
-          </span>
+          </div>
         </div>`;
       input.value = '';
       output.scrollTop = output.scrollHeight;
 
-      // Fetch AI response
-      const res = await fetch('http://localhost:3000/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await res.json();
-
-      // Render AI message as Markdown
+      // Show typing indicator
       output.innerHTML += `
-        <div class='text-left mb-2'>
-          <div class='inline-block bg-gray-800 text-white px-4 py-2 rounded-lg max-w-[80%] prose prose-invert'>
-            ${marked.parse(data.reply)}
+        <div class='flex justify-start mb-4' id='typing-indicator'>
+          <div class='chat-bubble-ai text-gray-200 px-4 py-3 rounded-2xl'>
+            <div class='flex space-x-1'>
+              <div class='w-2 h-2 bg-gray-400 rounded-full animate-pulse'></div>
+              <div class='w-2 h-2 bg-gray-400 rounded-full animate-pulse' style='animation-delay: 0.2s'></div>
+              <div class='w-2 h-2 bg-gray-400 rounded-full animate-pulse' style='animation-delay: 0.4s'></div>
+            </div>
           </div>
         </div>`;
       output.scrollTop = output.scrollHeight;
+
+      try {
+        // Simulate API call - replace with your actual endpoint
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Remove typing indicator
+        document.getElementById('typing-indicator').remove();
+        
+        // Simulate response - replace with actual API call
+        const mockResponse = "I understand you're reaching out. I'm here to help with whatever you're working on or thinking about. Whether it's a specific subject you're studying, exam stress, or just need someone to bounce ideas off - I'm all ears! What would you like to talk about?";
+
+        // Render AI message as Markdown
+        output.innerHTML += `
+          <div class='flex justify-start mb-4'>
+            <div class='chat-bubble-ai text-gray-200 px-4 py-3 rounded-2xl max-w-[75%] shadow-lg prose-custom'>
+              ${marked.parse(mockResponse)}
+            </div>
+          </div>`;
+      } catch (error) {
+        // Remove typing indicator
+        const typingEl = document.getElementById('typing-indicator');
+        if (typingEl) typingEl.remove();
+        
+        output.innerHTML += `
+          <div class='flex justify-start mb-4'>
+            <div class='chat-bubble-ai text-red-300 px-4 py-3 rounded-2xl max-w-[75%] shadow-lg'>
+              Sorry, I'm having trouble connecting right now. Please try again in a moment.
+            </div>
+          </div>`;
+      }
+      
+      output.scrollTop = output.scrollHeight;
     }
+    
+    // Handle Enter key press
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('userInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendPrompt();
+        }
+      });
+    });
   </script>
 </head>
-<body class="bg-black text-white font-sans">
-  <header class="p-6 flex justify-between items-center">
-    <h1 class="text-xl font-bold flex items-center gap-2">
-      <span>
-        <img src="https://img.icons8.com/?size=100&id=XDoDBLNz5eBF&format=png&color=000000" alt="Ai" style="height: 50px;">
-      </span> ConversAI
-    </h1>
-    <nav class="space-x-6">
-      <a href="features.html" class="hover:underline">Features</a>
-      <a href="#" class="hover:underline">About</a>
-      <a href="#" class="hover:underline">Help</a>
-      <button class="bg-white text-black px-4 py-2 rounded-full font-semibold">Sign In</button>
-    </nav>
-  </header>
 
-  <main class="max-w-4xl mx-auto px-4 text-center mt-10">
-    <h2 class="text-4xl font-bold mb-4">Your Intelligent AI Assistant</h2>
-    <p class="text-gray-300 mb-10">Experience the future of productivity with our advanced AI assistant. Get instant answers, generate content, and streamline your workflow with intelligent conversations.</p>
-
-    <div class="bg-gray-900 p-6 rounded-xl shadow-lg">
-      <div id="responseBox" class="h-64 overflow-y-auto text-left mb-4 p-2 bg-black rounded-lg">
-        <div class='text-left mb-2'>
-          <span class='inline-block bg-purple-600 text-white px-4 py-2 rounded-lg max-w-[80%]'>
-            Hello! I'm your AI assistant. How can I help you today?
-          </span>
+<body class="bg-black text-white">
+  <!-- Header -->
+  <header class="glass-effect sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-gradient-to-r  rounded-lg flex items-center justify-center">
+            <span class="text-xl font-bold"><img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXpveHJmZDl4bmkzeHpkMXhma3kwdGgzMXMzMXNzMjRpZ2lwYW95bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/lr7lYUc00nr3hWsoVa/giphy.gif" alt="Converse AI"></span>
+          </div>
+          <h1 class="text-xl font-bold">Converse AI</h1>
         </div>
-      </div>
-      <div class="flex gap-2">
-        <input id="userInput" type="text" placeholder="Type your message here..." class="flex-grow px-4 py-2 rounded-lg text-black" />
-        <button onclick="sendPrompt()" class="bg-white text-black px-6 py-2 rounded-lg font-bold">Send</button>
+        
+        <nav class="hidden md:flex items-center space-x-8">
+          <a href="#features" class="text-gray-300 hover:text-white transition-colors">Features</a>
+          <a href="#about" class="text-gray-300 hover:text-white transition-colors">About</a>
+          <a href="#tips" class="text-gray-300 hover:text-white transition-colors">Tips</a>
+          <button class="bg-white text-black px-6 py-2 rounded-full font-medium hover:bg-gray-100 transition-colors">
+            Get Started
+          </button>
+        </nav>
+        
+        <!-- Mobile menu button -->
+        <button class="md:hidden text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
       </div>
     </div>
+  </header>
 
-    <section class="mt-16">
-      <h3 class="text-3xl font-semibold mb-6">Powerful AI Features</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-gray-900 p-6 rounded-lg">
-          <div class="text-purple-400 text-3xl mb-2">⬤</div>
-          <h4 class="text-xl font-bold mb-1">Instant Responses</h4>
-          <p class="text-gray-400">Get immediate answers to your questions with our advanced natural language processing.</p>
+  <!-- Main Content -->
+  <main class="max-w-5xl mx-auto px-6 py-12">
+    <!-- Hero Section -->
+    <section class="text-center mb-16">
+      <h2 class="text-5xl md:text-6xl font-bold mb-6">
+        Your <span class="gradient-text">Friendly</span><br>
+        Study Companion
+      </h2>
+      <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+        Whether you're stuck on homework, stressed about exams, or unsure about your career path — 
+        I'm here to listen, encourage, and guide you through your academic journey.
+      </p>
+    </section>
+
+    <!-- Chat Interface -->
+    <section class="mb-20">
+      <div class="glass-effect rounded-2xl p-6 max-w-4xl mx-auto">
+        <div id="responseBox" class="h-80 overflow-y-auto mb-6 p-4 bg-black/20 rounded-xl scroll-smooth">
+          <div class='flex justify-start mb-4'>
+            <div class='chat-bubble-ai text-gray-200 px-4 py-3 rounded-2xl max-w-[75%] shadow-lg'>
+              <div class="flex items-center space-x-2 mb-2">
+                <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-sm">
+                  🎓
+                </div>
+                <span class="font-medium text-sm text-gray-400">Converse AI</span>
+              </div>
+              Hey there! I'm your Converse AI. How's your day going? What can I help you with today?
+            </div>
+          </div>
         </div>
-        <div class="bg-gray-900 p-6 rounded-lg">
-          <div class="text-blue-400 text-3xl mb-2">👥</div>
-          <h4 class="text-xl font-bold mb-1">Smart Context</h4>
-          <p class="text-gray-400">Our AI remembers your conversation context for more meaningful and relevant interactions.</p>
+        
+        <div class="flex space-x-3">
+          <input 
+            id="userInput" 
+            type="text" 
+            placeholder="Tell me what's on your mind..." 
+            class="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 input-focus"
+          />
+          <button 
+            onclick="sendPrompt()" 
+            class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 py-3 rounded-xl font-medium transition-all duration-200 hover-scale"
+          >
+            Send
+          </button>
         </div>
-        <div class="bg-gray-900 p-6 rounded-lg">
-          <div class="text-green-400 text-3xl mb-2">📋</div>
-          <h4 class="text-xl font-bold mb-1">Multi-Purpose</h4>
-          <p class="text-gray-400">From writing assistance to problem-solving, our AI adapts to your diverse needs.</p>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="mb-20">
+      <div class="text-center mb-12">
+        <h3 class="text-3xl md:text-4xl font-bold mb-4">How I Can Help You</h3>
+        <p class="text-gray-300 text-lg">A safe space for students to share, learn, and grow</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="glass-effect p-8 rounded-2xl text-center hover-scale">
+          <div class="w-16 h-16 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl">💬</span>
+          </div>
+          <h4 class="text-xl font-bold mb-3">A Listening Ear</h4>
+          <p class="text-gray-300">Share your worries about school, exams, or your future — I'll always respond with kindness and understanding.</p>
+        </div>
+        
+        <div class="glass-effect p-8 rounded-2xl text-center hover-scale">
+          <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl">📚</span>
+          </div>
+          <h4 class="text-xl font-bold mb-3">Study Help</h4>
+          <p class="text-gray-300">From tricky math problems to essay ideas, I can help you understand and learn without the stress.</p>
+        </div>
+        
+        <div class="glass-effect p-8 rounded-2xl text-center hover-scale">
+          <div class="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl">🌱</span>
+          </div>
+          <h4 class="text-xl font-bold mb-3">Career Guidance</h4>
+          <p class="text-gray-300">Not sure about your next step? Let's explore options and create a path you'll feel confident about.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Additional Features -->
+    <section class="mb-20">
+      <div class="glass-effect rounded-2xl p-8 text-center">
+        <h3 class="text-2xl font-bold mb-4">Why Students Choose Study Buddy AI</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+          <div class="text-center">
+            <div class="text-3xl mb-2">🔒</div>
+            <h4 class="font-semibold mb-1">100% Private</h4>
+            <p class="text-sm text-gray-400">Your conversations are secure</p>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl mb-2">⚡</div>
+            <h4 class="font-semibold mb-1">Always Available</h4>
+            <p class="text-sm text-gray-400">24/7 support when you need it</p>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl mb-2">🎯</div>
+            <h4 class="font-semibold mb-1">Personalized</h4>
+            <p class="text-sm text-gray-400">Tailored to your learning style</p>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl mb-2">❤️</div>
+            <h4 class="font-semibold mb-1">Judgment-Free</h4>
+            <p class="text-sm text-gray-400">A safe space to be yourself</p>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="mt-20 p-6 border-t border-gray-800 text-center text-sm text-gray-500">
-    <div class="flex justify-between items-center max-w-4xl mx-auto">
-      <div>
-        <h1 class="font-bold text-white flex items-center gap-2">🏠 AI-Assistant</h1>
-        <p class="text-sm">Empowering productivity through intelligent AI assistance.<br>Experience the future of digital interaction.</p>
+  <!-- Footer -->
+  <footer class="border-t border-white/10 mt-20">
+    <div class="max-w-5xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div>
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+              <span class="text-sm font-bold">🎓</span>
+            </div>
+            <h4 class="text-lg font-bold">Study Buddy AI</h4>
+          </div>
+          <p class="text-gray-400 text-sm leading-relaxed">
+            A safe space for students to share, learn, and grow. You're never alone in this journey.
+          </p>
+        </div>
+        
+        <div>
+          <h5 class="font-semibold mb-3">Quick Links</h5>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#" class="hover:text-white transition-colors">How It Works</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Study Tips</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Success Stories</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h5 class="font-semibold mb-3">Support</h5>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+          </ul>
+        </div>
       </div>
-      <div class="space-x-6">
-        <a href="#" class="hover:underline">Privacy Policy</a>
-        <a href="#" class="hover:underline">Terms of Service</a>
-        <a href="#" class="hover:underline">Support</a>
+      
+      <div class="border-t border-white/10 pt-8 text-center text-sm text-gray-400">
+        <p>&copy; 2025 Study Buddy AI. Made with ❤️ for students everywhere.</p>
       </div>
     </div>
-    <p class="mt-4">&copy; 2025 AI-Assistant. All rights reserved.</p>
   </footer>
 </body>
 </html>
