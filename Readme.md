@@ -176,4 +176,4 @@ If you encounter any issues or have questions:
 
 ---
 
-**Made with ❤️ for students, by developers who care about education**
+**Made with ❤️ for students, by Paras Jagdale**
